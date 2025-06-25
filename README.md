@@ -513,11 +513,138 @@ Rede MODBUS
 Santos MECM dos. Controle da pressão de operação da Bancada de Testes para Turbinas Hidráulicas. Trabalho de conclusão de curso de Engenharia de Energia - Universidade de Brasília, 2015.
 
 # 5. Ensaios do segundo nível metodológico - Carga Mecânica
-Freio de prony.
+
+O ensaio com Freio de prony pode ser realizada de duas maneiras. 
 
 
-![](figuras/CurvaPOTxRPM.jpg)
 
+## 5.1. Procedimento manual
+
+A primeira opção é com os instrumentos analógicos onde os alunos tem o trabalho braçal de ler os dados das balanças, rotação, vazão, registrar os dados e calcular e plotar a curva de carga.
+
+Equipamentos:
+
+1. Duas balanças mecânicos ou eletrônicos
+2. Tacometro
+
+### 5.1.1. Procedimento
+
+Fazer o procedimento de freiar a turbina da situação sem carga, aplicando carga mecânica máxima com freio até a parada da turbina.
+
+## 5.2. Procedimento automático 
+
+A segunda opção é fazendo o procedimento com apoio do ScadaBR e medição automática de torque, rotação, vazão e abertura da valvula.
+
+Equipamentos:
+
+1. Celulas de carga 
+2. Sensor de rotação
+3. Sensor de vazão eletrônica
+4. Sensor de posição da válvula de abertura
+
+
+### 5.2.1. Procedimento 
+
+Fazer o procedimento de freiar a turbina da situação sem carga, aplicando carga mecânica máxima com freio até a parada da turbina.
+Depois exportar os dados lidos por meio de relatório do ScadaBR. O arquivo CSV exportado precisa ser tratado para gerar a curva de carga. 
+
+O script para tratar os dados é mostrado no próximo item.
+
+
+### 5.2.2. Script de leitura do relatório ScadaBR
+
+O relatório exportado pode ser obtido no [link para arquivo CSV](annexos/HidroAmigos.csv)
+
+O script em python no Jupyter Notebook que processa este arquivo e cria a curva de carga está listado a seguir.
+
+```
+import csv
+from datetime import datetime, date, time, timezone
+import pandas as pd
+import openpyxl
+import matplotlib.pyplot as plt
+
+# leia arquivo CSV e grava como dataframe 
+aaa=pd.read_csv('HidroAmigos.csv',encoding='ISO-8859-1')
+
+# Tira a coluna "Tempo" do dataframe e coloca como indexador do proprio dataframe
+tidx=aaa.pop('Tempo')
+aaa.index=pd.to_datetime(tidx)
+
+# Filtra as colunas torque1, torque2 e rotação e grava numa serie
+
+#tmSer_abertura=aaa[aaa.NomeDP == 'Freio_prony_ESP32_wifi_modbus - abertura']
+tmSer_torque1=aaa[aaa.NomeDP == 'Freio_prony_ESP32_wifi_modbus - torque1']
+tmSer_torque2=aaa[aaa.NomeDP == 'Freio_prony_ESP32_wifi_modbus - torque2']
+tmSer_rotacao=aaa[aaa.NomeDP == 'Freio_prony_ESP32_wifi_modbus - rotacao']
+
+# Cria um novo dataframe a partir das series
+
+nov_df=pd.DataFrame({'rotacao': tmSer_rotacao.Valor , 'torque1': tmSer_torque1.Valor, 'torque2': tmSer_torque2.Valor })
+
+# Plota o dado bruto
+
+nov_df.plot()
+```
+
+
+![](figuras/output_ensaio_bruto.png)
+
+```
+# Seleciona os dados que interessam e plota 
+
+nov1_df=nov_df[nov_df.index > '2025-06-13 09:54:45']
+nov1_df.head()
+
+# Refina o filtro
+
+fil_df=nov1_df.between_time('09:54:48', '09:55:22')
+fil_df.plot()
+
+```
+![](figuras/output_ensaio_filtrado.png)
+
+```
+# Rotina para preencher os lacunas
+# As lacunas são preenchidos com os valores anterior
+# Se valor é NaN troca pelo valor anterior
+
+for i in range(len(fil_df['rotacao'])):
+    print(fil_df['rotacao'].iat[i])   
+    t = pd.notna(fil_df['rotacao'][i])
+    if not t : 
+        #  print(" False " )        
+        fil_df['rotacao'].iat[i] = fil_df['rotacao'].iat[i-1]   
+        
+for i in range(len(fil_df['torque1'])):
+    print(fil_df['torque1'].iat[i])   
+    t = pd.notna(fil_df['torque1'][i])
+    if not t : 
+        # print(" False " )        
+        fil_df['torque1'].iat[i] = fil_df['torque1'].iat[i-1]  
+
+for i in range(len(fil_df['torque2'])):
+    print(fil_df['torque2'].iat[i])   
+    t = pd.notna(fil_df['torque2'][i])
+    if not t : 
+        # print(" False " )        
+        fil_df['torque2'].iat[i] = fil_df['torque2'].iat[i-1]  
+        
+trat_df=fil_df
+# Calcula a potencia
+
+x = (trat_df.torque1 - trat_df.torque2) * trat_df.rotacao
+trat_df['pot'] = x
+
+plt.scatter(trat_df.rotacao, trat_df.pot)
+plt.show()        
+
+```
+
+![](figuras/output_curva_potencia.png)
+
+
+A curva de potência não está calibrado, pois ainda falta calibrar as células de carga. 
 
 
 
