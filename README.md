@@ -100,7 +100,7 @@ Calixto, Rodrigo de O. Sistema Supervisório para Bancada de Ensaio de Picoturbi
 
 ![](fotos/sensor_pressao.jpg)
 
-
+Sensor de pressão WIKA TYPE A 10 de 0 a 2,5 bar. A saída é de 4-20mA e a tensão de alimentação é de 8 a 30Vcc.
 
 ## 3.2. Vazão volumétrica
 
@@ -110,6 +110,15 @@ Calixto, Rodrigo de O. Sistema Supervisório para Bancada de Ensaio de Picoturbi
 ![](fotos/especificacao_medidor_vazao.jpg)
 
 ![](fotos/certificado_calibracao_med_vazao.jpg)
+
+| fio      | descrição |  pino conector mike |          
+|:--------:|:---------:|:-------------------:|
+| vermelho | Alimentação 24Vdc | 1 |
+| verde    | sinal 4-20mA | 2 |
+| preto    | GND          | 3 |
+
+
+
 
 ## 3.3. Sensor de rotação
 
@@ -121,17 +130,31 @@ O sensor de proximidade é do tipo NPN coletor aberto com os seguintes pinos mos
 
 ![](fotos/pinagem_proximidade.jpg)
 
-| fio | descrição |  Borne cor da emenda|           
-|:----:|:--------:|:---------:|:------:|
-| BN - Brown | Alimentação 6-30Vdc | Vermelho| 
-| BK - Black | sinal célula | Preto |
-| BU - Blue  | GND | Amarelo |
+| fio | descrição |  Borne cor da emenda| pino conector mike |          
+|:----:|:--------:|:---------:|:------:|:-------------------:|
+| BN - Brown | Alimentação 6-30Vcc | Vermelho| 1 |
+| BK - Black | sinal sensor | Amarel | 2 |
+| BU - Blue  | GND          | Preto  | 3 |
+
+
 
 A conversão dos pulsos em velocidade poder ser feito de várias maneiras. 
 
 
+## 3.4. Sensor de abertura da válvula 
 
-## 3.4. Freio de Prony com célula de carga
+O abertura da válvula de entrada da turbina é indicado por um potênciometro conforme mostrada na figura a seguir.
+
+![](fotos/foto_sensor_abertura.jpg)
+
+| fio | descrição |  pino conector mike |          
+|:----:|:--------:|:---------:|
+| vermelho | Alimentação 12Vcc | 1 |
+| amarelo  | sinal sensor      | 2 |
+| preto    | GND    | 3 |
+
+
+## 3.5. Freio de Prony com célula de carga
 
 Para medir a potência mecânica no eixo desenvolvido pela turbina pode ser usar o Freio de Prony.
 
@@ -145,6 +168,19 @@ Folha de especificação técnica da célula de carga.
 
 
 [Video de freio de prony montada na bancada](https://youtu.be/LnSO-6u0-hE)
+
+O connector da celula de carga é um conector mike de 4 vias com a pinagem mostrada na tabela a seguir.
+
+
+| fio      | descrição | pino conector mike |           
+|:--------:|:---------:|:---------:|
+| vermelho | + input   | 4  | 
+| branco   | - output  | 3  |
+| preto    | - input   | 1  |
+| verde    | + output  | 2  |
+
+
+![](fotos/conector_cel_carga.jpg)
 
 
 
@@ -208,6 +244,10 @@ Requisitos:
 
 
 ![](figuras/esquema_esp32wifi.jpg)
+
+
+![](figuras/esquematico_placa_aquisicao_micro2.png)
+
 
 | conector | descrição |  sinal|           
 |:----:|:--------:|:---------:|
